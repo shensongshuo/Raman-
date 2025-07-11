@@ -148,7 +148,7 @@ with col2:
 
 # 侧边栏添加信息
 with st.sidebar:
-    st.header("ℹ️ 系统信息")
+    st.header("ℹ️ 系统信息V1.0")
     if st.session_state.raw_data:
         st.write(f"数据点数: {len(st.session_state.raw_data[0])}")
     if st.session_state.get('process_method'):  
