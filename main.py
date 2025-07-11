@@ -1,16 +1,3 @@
-# 初始化所有需要的 session_state 变量
-DEFAULT_VALUES = {
-    'process_method': None,
-    'uploaded_file': None,
-    'baseline_method': '无',
-    'normalization_method': '无'
-}
-
-for key, value in DEFAULT_VALUES.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
-
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -164,7 +151,7 @@ with st.sidebar:
     st.header("ℹ️ 系统信息")
     if st.session_state.raw_data:
         st.write(f"数据点数: {len(st.session_state.raw_data[0])}")
-    if st.session_state.process_method:
+   if st.session_state.get('process_method'):
         st.write(f"当前处理方法: {st.session_state.process_method}")
 
     st.divider()
