@@ -1,3 +1,16 @@
+# 初始化所有需要的 session_state 变量
+DEFAULT_VALUES = {
+    'process_method': None,
+    'uploaded_file': None,
+    'baseline_method': '无',
+    'normalization_method': '无'
+}
+
+for key, value in DEFAULT_VALUES.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
 import streamlit as st
 import numpy as np
 import pandas as pd
