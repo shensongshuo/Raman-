@@ -8,7 +8,7 @@ from AsLS import baseline_als
 from LPnorm import LPnorm
 
 # 设置页面
-st.set_page_config(layout="wide", page_title="拉曼光谱1111111111分析系统")
+st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
 st.title("拉曼光谱分析系统")
 
 # 初始化session状态
