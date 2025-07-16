@@ -98,7 +98,7 @@ with col1:
             key="transform_method",
             help="选择要应用的数据变换方法"
         )
-        st.subheader("🔧 数据变换2（滤波处理）")
+        st.subheader("🔧 数据变换21（滤波处理）")
         filter_method = st.selectbox(
         "滤波方法",
         ["无", "傅里叶滤波(Smfft)", "卡尔曼滤波(KalmanF)", 
