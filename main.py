@@ -16,6 +16,9 @@ from KalmanFiltering import Kalman
 from ArithmeticAverage import MWA 
 from meadianfiltering import MWM 
 from SGfiltering import SGfilter 
+import pywt
+import copy
+
 
 # 设置页面
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
