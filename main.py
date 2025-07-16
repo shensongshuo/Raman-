@@ -12,8 +12,8 @@ from AsLS import baseline_als
 from LPnorm import LPnorm
 
 # 设置页面
-st.set_page_config(layout="wide", page_title="光谱预处理系统")
-st.title("🌌 光谱预处理系统")
+st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
+st.title("拉曼光谱分析系统")
 
 # 初始化session状态
 if 'raw_data' not in st.session_state:
@@ -23,46 +23,21 @@ if 'processed_data' not in st.session_state:
 if 'peaks' not in st.session_state:
     st.session_state.peaks = None
 
-# 文件读取函数 (从您原有代码提取)
-def getfromone(path, lines, much):
-    numb = re.compile(r"-?\d+(?:\.\d+)?")
-    ret = np.zeros((lines, much), dtype=float)
-    with open(path) as f:
-        con = 0
-        for line in f:
-            li = numb.findall(line)
-            for i in range(lines):
-                ret[i][con] = float(li[i])
-            con += 1
-    return ret
-
-# 创建两列布局
+# 创建两列布局（调整比例使右侧更宽）
 col1, col2 = st.columns([1.2, 3])
 
 with col1:
     # ===== 数据管理 =====
     with st.expander("📁 数据管理", expanded=True):
-        # 波数文件上传
-        wavenumber_file = st.file_uploader("上传波数文件", type=['txt'])
-        
-        # 光谱数据上传
-        uploaded_file = st.file_uploader("上传光谱数据文件", type=['txt'])
-        
-        # 参数设置
-        lines = st.number_input("光谱条数", min_value=1, value=1)
-        much = st.number_input("每条光谱数据点数", min_value=1, value=2000)
+        uploaded_file = st.file_uploader("上传光谱文件", type=['txt', 'csv'])
 
-        if uploaded_file and wavenumber_file:
+        if uploaded_file:
             try:
-                # 读取波数数据
-                wavenumbers = np.loadtxt(wavenumber_file).ravel()
-                
-                # 读取光谱数据
-                ret = getfromone(uploaded_file, lines, much)
-                
-                st.session_state.raw_data = (wavenumbers, ret.T)  # 转置为(点数, 光谱数)
-                st.success(f"数据加载成功！{lines}条光谱，每条{much}个点")
-                
+                data = np.loadtxt(uploaded_file)
+                x = data[:, 0]
+                y = data[:, 1]
+                st.session_state.raw_data = (x, y)
+                st.success(f"数据加载成功！点数: {len(x)}")
             except Exception as e:
                 st.error(f"文件加载失败: {str(e)}")
 
@@ -83,24 +58,22 @@ with col1:
             lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
             p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-        # ===== 数据变换 =====
-        st.subheader("🧩 数据变换")
+
+
+# ===== 数据变换 =====
+ # 数据变换
+        st.subheader("数据变换")
         transform_method = st.selectbox(
-            "变换方法",
+            "数据变换方法",
             ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
              "Sigmoid(归一化版)", "Sigmoid(原始版)"],
             key="transform_method",
             help="选择要应用的数据变换方法"
         )
 
-        # 动态参数
-        if "Sigmoid(归一化版)" in transform_method:
-            maxn = st.slider("归一化系数", 1, 20, 10, 
-                           help="控制归一化程度，值越大归一化效果越强")
+        if transform_method == "Sigmoid(归一化版)":
+            maxn = st.slider("归一化系数", 1, 20, 10, key="i_sigmoid_maxn", help="控制归一化程度，值越大归一化效果越强")
         
-        if "挤压函数(归一化版)" in transform_method:
-            st.info("此方法会自动对数据进行归一化处理")
-
         # 归一化
         st.subheader("归一化")
         norm_method = st.selectbox(
@@ -114,107 +87,121 @@ with col1:
             if st.session_state.raw_data is None:
                 st.warning("请先上传数据文件")
             else:
-                wavenumbers, y = st.session_state.raw_data
+                x, y = st.session_state.raw_data
                 y_processed = y.copy()
-                method_name = []
+                method_name = "原始数据"
 
                 # 基线处理
                 if baseline_method == "SD":
-                    y_processed = D2(y_processed)
-                    method_name.append("SD基线校准")
+                    y_processed = D2(y_processed.reshape(1, -1))[0]
+                    method_name = "SD基线校准"
                 elif baseline_method == "FD":
-                    y_processed = D1(y_processed)
-                    method_name.append("FD基线校准")
+                    y_processed = D1(y_processed.reshape(1, -1))[0]
+                    method_name = "FD基线校准"
                 elif baseline_method == "I-ModPoly":
-                    y_processed = IModPoly(wavenumbers, y_processed, polyorder)
-                    method_name.append(f"I-ModPoly(阶数={polyorder})")
+                    y_processed = IModPoly(x, y_processed.reshape(1, -1), polyorder)[0]
+                    method_name = f"I-ModPoly(阶数={polyorder})"
                 elif baseline_method == "AsLS":
-                    y_processed = baseline_als(y_processed, lam, p, 10)
-                    method_name.append(f"AsLS(λ={lam:.1e},p={p})")
+                    y_processed = baseline_als(y_processed.reshape(1, -1), lam, p, 10)[0]
+                    method_name = f"AsLS(λ={lam:.1e},p={p})"
 
                 # 数据变换处理
                 if transform_method == "挤压函数(归一化版)":
-                    y_processed = i_squashing(y_processed)
-                    method_name.append("i_squashing")
+                    y_processed = i_squashing(y_processed.reshape(1, -1))[0]
+                    method_name += " + i_squashing"
                 elif transform_method == "挤压函数(原始版)":
-                    y_processed = squashing(y_processed)
-                    method_name.append("squashing")
+                    y_processed = squashing(y_processed.reshape(1, -1))[0]
+                    method_name += " + squashing"
                 elif transform_method == "Sigmoid(归一化版)":
-                    y_processed = i_sigmoid(y_processed, maxn)
-                    method_name.append(f"i_sigmoid(maxn={maxn})")
+                    y_processed = i_sigmoid(y_processed.reshape(1, -1), maxn)[0]
+                    method_name += f" + i_sigmoid(maxn={maxn})"
                 elif transform_method == "Sigmoid(原始版)":
-                    y_processed = sigmoid(y_processed)
-                    method_name.append("sigmoid")
+                    y_processed = sigmoid(y_processed.reshape(1, -1))[0]
+                    method_name += " + sigmoid"
 
                 # 归一化处理
                 if norm_method == "无穷大范数":
-                    y_processed = LPnorm(y_processed, np.inf)
-                    method_name.append("无穷大范数")
+                    y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
+                    method_name += " + 无穷大范数"
                 elif norm_method == "L10范数":
-                    y_processed = LPnorm(y_processed, 10)
-                    method_name.append("L10范数")
+                    y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
+                    method_name += " + L10范数"
                 elif norm_method == "L4范数":
-                    y_processed = LPnorm(y_processed, 4)
-                    method_name.append("L4范数")
+                    y_processed = LPnorm(y_processed.reshape(1, -1), 4)[0]
+                    method_name += " + L4范数"
 
-                st.session_state.processed_data = (wavenumbers, y_processed)
-                st.session_state.process_method = " → ".join(method_name)
-                st.success(f"处理完成: {st.session_state.process_method}")
+                st.session_state.processed_data = (x, y_processed)
+                st.session_state.process_method = method_name
+                st.success(f"处理完成: {method_name}")
 
 with col2:
-    # ===== 系统信息 =====
-    if st.session_state.get('raw_data'):
-        wavenumbers, y = st.session_state.raw_data
+    # ===== 系统信息和处理方法 =====
+    with st.container():
         cols = st.columns([1, 2])
         with cols[0]:
-            st.info(f"📊 数据维度: {y.shape[1]}条光谱 × {y.shape[0]}点")
+            if st.session_state.raw_data:
+                st.info(f"📊 数据点数: {len(st.session_state.raw_data[0])}")
         with cols[1]:
             if st.session_state.get('process_method'):
-                st.success(f"🛠️ 处理流程: {st.session_state.process_method}")
+                st.success(f"🛠️ 当前处理方法: {st.session_state.process_method}")
     
     st.divider()
     
     # ===== 光谱图 =====
-    st.subheader("📈 光谱可视化")
-    if st.session_state.get('raw_data'):
-        wavenumbers, y = st.session_state.raw_data
-        chart_data = pd.DataFrame(y, index=wavenumbers)
-        
-        if st.session_state.get('processed_data'):
-            _, y_processed = st.session_state.processed_data
-            chart_data = pd.DataFrame({
-                "原始数据": y.mean(axis=1),
-                "处理后数据": y_processed.mean(axis=1)
-            }, index=wavenumbers)
-        
+    st.header("📊 光谱图")
+    chart_data = pd.DataFrame()
+    if st.session_state.raw_data:
+        x, y = st.session_state.raw_data
+        chart_data["原始数据"] = y
+        chart_data.index = x
+
+    if st.session_state.processed_data:
+        x, y = st.session_state.processed_data
+        chart_data["处理后数据"] = y
+
+    if not chart_data.empty:
         st.line_chart(chart_data)
     else:
         st.info("请先上传并处理数据")
 
-    # ===== 结果导出 =====
-    if st.session_state.get('processed_data'):
-        st.subheader("💾 结果导出")
-        export_name = st.text_input("导出文件名", "processed_spectra.txt")
-        
-        if st.button("导出处理结果", type="secondary"):
-            wavenumbers, y_processed = st.session_state.processed_data
-            with open(export_name, "w") as f:
-                for line in y_processed.T:  # 转置回原始格式
-                    f.write("\t".join(map(str, line)) + "\n")
-            st.success(f"结果已导出到 {export_name}")
+    # ===== 分析结果 =====
+    st.header("🔍 分析结果")
+    if st.button("🔄 执行峰分析", use_container_width=True):
+        if st.session_state.processed_data is None:
+            st.warning("请先处理数据")
+        else:
+            # 模拟峰分析结果
+            x, y = st.session_state.processed_data
+            peaks = [
+                {"位置(cm⁻¹)": 800, "强度": 1.2, "半高宽": 50, "物质归属": "SiO₂"},
+                {"位置(cm⁻¹)": 1200, "强度": 2.3, "半高宽": 60, "物质归属": "TiO₂"},
+                {"位置(cm⁻¹)": 1600, "强度": 1.8, "半高宽": 55, "物质归属": "Al₂O₃"}
+            ]
+            st.session_state.peaks = peaks
+            st.success(f"检测到{len(peaks)}个峰")
 
-# 使用说明
-with st.expander("ℹ️ 使用指南", expanded=False):
+    if st.session_state.peaks:
+        st.dataframe(st.session_state.peaks)
+        csv = pd.DataFrame(st.session_state.peaks).to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 下载分析结果",
+            data=csv,
+            file_name='peak_analysis.csv',
+            mime='text/csv',
+            use_container_width=True
+        )
+
+# 页面底部添加使用说明
+st.divider()
+with st.expander("ℹ️ 使用说明", expanded=False):
     st.markdown("""
-    **标准操作流程:**
-    1. 上传波数文件（单列文本）
-    2. 上传光谱数据文件（多列文本）
-    3. 设置光谱条数和数据点数
-    4. 选择预处理方法
-    5. 点击"应用处理"
-    6. 导出结果
-
-    **文件格式要求:**
-    - 波数文件: 每行一个波数值
-    - 光谱数据: 每列代表一条光谱，每行对应相同波数位置
+    **操作流程:**
+    1. 上传光谱文件(TXT/CSV)
+    2. 选择预处理方法
+    3. 点击"应用处理"
+    4. 执行峰分析
+    
+    **注意事项:**
+    - 确保数据文件为两列格式（波数+强度）
+    - 复杂处理可能需要更长时间
     """)
