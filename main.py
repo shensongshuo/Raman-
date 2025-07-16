@@ -18,8 +18,6 @@ from meadianfiltering import MWM
 from SGfiltering import SGfilter 
 import pywt
 import copy
-
-
 from MMnorm import MaMinorm 
 from MSCdef import MSC 
 from SNV import standardization 
