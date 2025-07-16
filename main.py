@@ -6,7 +6,7 @@ from FD import D1
 from IModPoly import IModPoly
 from AsLS import baseline_als
 from LPnorm import LPnorm
-from sigmoid import sigmoid
+from sigmoids import sigmoid
 from i_sigmoid import i_sigmoid
 from Squashing import squashing
 from i_squashing import i_squashing
