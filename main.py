@@ -215,7 +215,7 @@ with col1:
                     method_name.append(f"小波(阈值={threshold})")
             # 在处理按钮部分添加高级处理方法
                 if advanced_method == "LP范数归一化":
-                if lp_order == "L1范数":
+                    if lp_order == "L1范数":
                     y_processed = LPnorm(y_processed.reshape(1, -1), 1)[0]
                 elif lp_order == "L2范数":
                     y_processed = LPnorm(y_processed.reshape(1, -1), 2)[0]
