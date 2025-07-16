@@ -24,6 +24,28 @@ import copy
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
 st.title("拉曼光谱分析系统")
 
+
+# ===== 使用说明 - 移到顶部 =====
+with st.expander("📌 使用指南（点击展开）", expanded=True):
+    st.markdown("""
+    **操作流程:**
+    1. 📁 左侧上传光谱文件（TXT/CSV格式）
+    2. ⚙️ 选择预处理方法（基线校正→数据变换→滤波→归一化）
+    3. 🚀 点击"应用处理"按钮
+    4. 📊 查看右侧处理结果
+    5. 🔍 执行峰分析并导出结果
+
+    **文件格式要求:**
+    - 光谱文件：两列数据（波数+强度）
+    - 支持多光谱同时处理
+
+    **小技巧:**
+    - 鼠标悬停在参数上可查看帮助提示
+    - 点击图表可放大查看细节
+    """)
+
+
+
 # 初始化session状态
 if 'raw_data' not in st.session_state:
     st.session_state.raw_data = None
