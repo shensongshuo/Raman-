@@ -19,7 +19,7 @@ from FD import D1
 from IModPoly import IModPoly
 from AsLS import baseline_als
 from LPnorm import LPnorm
-from squeeze import squeeze_function  # 导入挤压函数
+
 
 # 设置页面
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
