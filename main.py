@@ -64,7 +64,7 @@ with col1:
             lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
             p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-st.subheader("🔧 数据变换方法2（滤波处理）")
+        st.subheader("🔧 数据变换方法2（滤波处理）")
         filter_method = st.selectbox(
         "滤波方法",
         ["无", "傅里叶滤波(Smfft)", "卡尔曼滤波(KalmanF)", 
