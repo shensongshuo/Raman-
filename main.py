@@ -67,36 +67,7 @@ with col1:
             lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
             p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-    #     st.subheader("🔧 数据变换方法2（滤波处理）")
-    #     filter_method = st.selectbox(
-    #     "滤波方法",
-    #     ["无", "傅里叶滤波(Smfft)", "卡尔曼滤波(KalmanF)", 
-    #      "移动平均滤波(MWA)", "中值滤波(MWM)", 
-    #      "Savitzky-Golay滤波(SG)", "小波滤波(wavelet)"],
-    #     key="filter_method"
-    # )
-    
-    # # 滤波参数动态设置
-    # if filter_method == "傅里叶滤波(Smfft)":
-    #     row_e = st.slider("截止频率", 1, 100, 51, 
-    #                      help="值越小滤波越强，保留的低频成分越多")
-    
-    # elif filter_method == "卡尔曼滤波(KalmanF)":
-    #     R = st.number_input("测量噪声方差(R)", value=0.0001, format="%f",
-    #                       help="值越大滤波效果越平滑")
-    
-    # elif filter_method in ["移动平均滤波(MWA)", "中值滤波(MWM)"]:
-    #     n = st.slider("窗口大小", 3, 21, 7, step=2,
-    #                  help="必须是奇数")
-    #     iterations = st.slider("迭代次数", 1, 5, 1)
-    
-    # elif filter_method == "Savitzky-Golay滤波(SG)":
-    #     point = st.slider("窗口点数", 5, 31, 11, step=2)
-    #     degree = st.slider("多项式阶数", 1, 5, 3)
-    
-    # elif filter_method == "小波滤波(wavelet)":
-    #     threshold = st.slider("阈值系数", 0.01, 1.0, 0.3, step=0.01,
-    #                         help="值越大去噪越强")
+  
 
 # ===== 数据变换 =====
  # 数据变换
@@ -109,6 +80,43 @@ with col1:
             help="选择要应用的数据变换方法"
         )
 
+        st.subheader("🔧 数据变换方法2（滤波处理）")
+        filter_method = st.selectbox(
+        "滤波方法",
+        ["无", "傅里叶滤波(Smfft)", "卡尔曼滤波(KalmanF)", 
+         "移动平均滤波(MWA)", "中值滤波(MWM)", 
+         "Savitzky-Golay滤波(SG)", "小波滤波(wavelet)"],
+        key="filter_method"
+    )
+    
+    # 滤波参数动态设置
+    if filter_method == "傅里叶滤波(Smfft)":
+        row_e = st.slider("截止频率", 1, 100, 51, 
+                         help="值越小滤波越强，保留的低频成分越多")
+    
+    elif filter_method == "卡尔曼滤波(KalmanF)":
+        R = st.number_input("测量噪声方差(R)", value=0.0001, format="%f",
+                          help="值越大滤波效果越平滑")
+    
+    elif filter_method in ["移动平均滤波(MWA)", "中值滤波(MWM)"]:
+        n = st.slider("窗口大小", 3, 21, 7, step=2,
+                     help="必须是奇数")
+        iterations = st.slider("迭代次数", 1, 5, 1)
+    
+    elif filter_method == "Savitzky-Golay滤波(SG)":
+        point = st.slider("窗口点数", 5, 31, 11, step=2)
+        degree = st.slider("多项式阶数", 1, 5, 3)
+    
+    elif filter_method == "小波滤波(wavelet)":
+        threshold = st.slider("阈值系数", 0.01, 1.0, 0.3, step=0.01,
+                            help="值越大去噪越强")
+
+
+
+
+
+
+        
         if transform_method == "Sigmoid(归一化版)":
             maxn = st.slider("归一化系数", 1, 20, 10, key="i_sigmoid_maxn", help="控制归一化程度，值越大归一化效果越强")
         
