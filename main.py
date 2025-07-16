@@ -1,27 +1,36 @@
-# 在main.py顶部添加
+# 在main.py顶部添
 from sklearn.linear_model import LinearRegression
+
+# 在import部分之后添加MSC函数
 def MSC(sdata):
+    """多元散射校正(MSC)实现"""
     n = sdata.shape[0]  # 样本数量
-    k = np.zeros(sdata.shape[0])
-    b = np.zeros(sdata.shape[0])
+    k = np.zeros(n)
+    b = np.zeros(n)
+    
+    # 计算平均光谱
     M = np.mean(sdata, axis=0)
+    
     for i in range(n):
-        y = sdata[i, :]
-        y = y.reshape(-1, 1)
-        M = M.reshape(-1, 1)
+        # 准备数据
+        y = sdata[i, :].reshape(-1, 1)
+        M_reshaped = M.reshape(-1, 1)
+        
+        # 线性回归
         model = LinearRegression()
-        model.fit(M, y)
-        k[i] = model.coef_
-        b[i] = model.intercept_
-#global spec_msc
+        model.fit(M_reshaped, y)
+        
+        # 获取参数
+        k[i] = model.coef_[0, 0]
+        b[i] = model.intercept_[0]
+    
+    # 校正光谱
     spec_msc = np.zeros_like(sdata)
     for i in range(n):
-        bb = np.repeat(b[i], sdata.shape[1])
-        kk = np.repeat(k[i], sdata.shape[1])
-        temp = (sdata[i, :] - bb)/kk
-        spec_msc[i, :] = temp
+        spec_msc[i, :] = (sdata[i, :] - b[i]) / k[i]
+    
     return spec_msc
- pass
+
 
 
 
