@@ -6,9 +6,9 @@ from FD import D1
 from IModPoly import IModPoly
 from AsLS import baseline_als
 from LPnorm import LPnorm
-from sigmoids import sigmoid
+from sigmoid import sigmoid
 from i_sigmoid import i_sigmoid
-from squashing import squashing
+from Squashing import squashing
 from i_squashing import i_squashing
 
 # 设置页面
@@ -23,8 +23,8 @@ if 'processed_data' not in st.session_state:
 if 'peaks' not in st.session_state:
     st.session_state.peaks = None
 
-# 创建两列布局
-col1, col2 = st.columns([1, 3])
+# 创建两列布局（调整比例使右侧更宽）
+col1, col2 = st.columns([1.2, 3])
 
 with col1:
     # ===== 数据管理 =====
@@ -44,50 +44,42 @@ with col1:
     # ===== 预处理设置 =====
     with st.expander("⚙️ 预处理设置", expanded=True):
         # 基线校准
-        with st.container():
-            st.subheader("基线校准")
-            baseline_method = st.selectbox(
-                "基线校准方法",
-                ["无", "SD", "FD", "I-ModPoly", "AsLS"],
-                key="baseline_method"
-            )
+        st.subheader("基线校准")
+        baseline_method = st.selectbox(
+            "基线校准方法",
+            ["无", "SD", "FD", "I-ModPoly", "AsLS"],
+            key="baseline_method"
+        )
 
-            # 动态参数
-            if baseline_method == "I-ModPoly":
-                polyorder = st.slider("多项式阶数", 3, 10, 6, key="polyorder")
-            elif baseline_method == "AsLS":
-                lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
-                p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
+        # 动态参数
+        if baseline_method == "I-ModPoly":
+            polyorder = st.slider("多项式阶数", 3, 10, 6, key="polyorder")
+        elif baseline_method == "AsLS":
+            lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
+            p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-        # ===== 数据变换 =====
-        with st.container():
-            st.subheader("数据变换")
-            transform_method = st.selectbox(
-                "数据变换方法",
-                ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
-                 "Sigmoid(归一化版)", "Sigmoid(原始版)"],
-                key="transform_method",
-                help="选择要应用的数据变换方法"
-            )
+        # 数据变换
+        st.subheader("数据变换")
+        transform_method = st.selectbox(
+            "数据变换方法",
+            ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
+             "Sigmoid(归一化版)", "Sigmoid(原始版)"],
+            key="transform_method"
+        )
 
-            # 动态参数
-            if transform_method == "Sigmoid(归一化版)":
-                maxn = st.slider("归一化系数", 1, 20, 10, 
-                                help="控制归一化程度，值越大归一化效果越强")
-            elif transform_method == "挤压函数(归一化版)":
-                st.info("此方法会自动对数据进行归一化处理")
-
+        if transform_method == "Sigmoid(归一化版)":
+            maxn = st.slider("归一化系数", 1, 20, 10, key="i_sigmoid_maxn")
+        
         # 归一化
-        with st.container():
-            st.subheader("归一化")
-            norm_method = st.selectbox(
-                "归一化方法",
-                ["无", "无穷大范数", "L10范数", "L4范数"],
-                key="norm_method"
-            )
+        st.subheader("归一化")
+        norm_method = st.selectbox(
+            "归一化方法",
+            ["无", "无穷大范数", "L10范数", "L4范数"],
+            key="norm_method"
+        )
 
         # 处理按钮
-        if st.button("🚀 应用处理", type="primary"):
+        if st.button("🚀 应用处理", type="primary", use_container_width=True):
             if st.session_state.raw_data is None:
                 st.warning("请先上传数据文件")
             else:
@@ -139,10 +131,20 @@ with col1:
                 st.success(f"处理完成: {method_name}")
 
 with col2:
+    # ===== 系统信息和处理方法 =====
+    with st.container():
+        cols = st.columns([1, 2])
+        with cols[0]:
+            if st.session_state.raw_data:
+                st.info(f"📊 数据点数: {len(st.session_state.raw_data[0])}")
+        with cols[1]:
+            if st.session_state.get('process_method'):
+                st.success(f"🛠️ 当前处理方法: {st.session_state.process_method}")
+    
+    st.divider()
+    
     # ===== 光谱图 =====
     st.header("📊 光谱图")
-
-    # 创建图表
     chart_data = pd.DataFrame()
     if st.session_state.raw_data:
         x, y = st.session_state.raw_data
@@ -160,8 +162,7 @@ with col2:
 
     # ===== 分析结果 =====
     st.header("🔍 分析结果")
-
-    if st.button("🔄 执行峰分析"):
+    if st.button("🔄 执行峰分析", use_container_width=True):
         if st.session_state.processed_data is None:
             st.warning("请先处理数据")
         else:
@@ -177,29 +178,26 @@ with col2:
 
     if st.session_state.peaks:
         st.dataframe(st.session_state.peaks)
-
-        # 添加下载按钮
         csv = pd.DataFrame(st.session_state.peaks).to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 下载分析结果",
             data=csv,
             file_name='peak_analysis.csv',
-            mime='text/csv'
+            mime='text/csv',
+            use_container_width=True
         )
 
-# 侧边栏添加信息
-with st.sidebar:
-    st.header("ℹ️ 系统信息V1.0")
-    if st.session_state.raw_data:
-        st.write(f"数据点数: {len(st.session_state.raw_data[0])}")
-    if st.session_state.get('process_method'):  
-        st.write(f"当前处理方法: {st.session_state.process_method}")
-
-    st.divider()
+# 页面底部添加使用说明
+st.divider()
+with st.expander("ℹ️ 使用说明", expanded=False):
     st.markdown("""
-    **使用说明:**
+    **操作流程:**
     1. 上传光谱文件(TXT/CSV)
     2. 选择预处理方法
     3. 点击"应用处理"
     4. 执行峰分析
+    
+    **注意事项:**
+    - 确保数据文件为两列格式（波数+强度）
+    - 复杂处理可能需要更长时间
     """)
