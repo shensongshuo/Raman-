@@ -18,8 +18,8 @@ from meadianfiltering import MWM
 from SGfiltering import SGfilter 
 import pywt
 import copy
+# from sklearn.linear_model import LinearRegression  # 用于MSC方法
 
-from sklearn.linear_model import LinearRegression  # 正确写法
 from MMnorm import MaMinorm 
 from MSCdef import MSC 
 from SNV import standardization 
