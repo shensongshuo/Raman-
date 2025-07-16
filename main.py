@@ -10,30 +10,21 @@ def MSC(sdata):
     
     # 计算平均光谱
     M = np.mean(sdata, axis=0)
-    
     for i in range(n):
         # 准备数据
         y = sdata[i, :].reshape(-1, 1)
         M_reshaped = M.reshape(-1, 1)
-        
         # 线性回归
         model = LinearRegression()
         model.fit(M_reshaped, y)
-        
         # 获取参数
         k[i] = model.coef_[0, 0]
         b[i] = model.intercept_[0]
-    
     # 校正光谱
     spec_msc = np.zeros_like(sdata)
     for i in range(n):
         spec_msc[i, :] = (sdata[i, :] - b[i]) / k[i]
-    
     return spec_msc
-
-
-
-
 import streamlit as st
 import numpy as np
 import pandas as pd
