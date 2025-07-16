@@ -1,9 +1,5 @@
 # 在main.py顶部添加
 from sklearn.linear_model import LinearRegression
-
-def MSC(sdata):
-
-   
 def MSC(sdata):
     n = sdata.shape[0]  # 样本数量
     k = np.zeros(sdata.shape[0])
