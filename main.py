@@ -24,7 +24,7 @@ from SNV import standardization
  
 
 
-from sklearn.linear_model import LinearRegression
+# from sklearn.linear_model import LinearRegression
 
 # 在import部分之后添加MSC函数
 def MSC(sdata):
