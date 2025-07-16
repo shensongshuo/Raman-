@@ -70,34 +70,44 @@ with col1:
                 p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
 # ===== 数据变换 =====
+# 在导入部分添加
+from transforms import i_squashing, squashing, i_sigmoid, sigmoid
+
+# 在预处理设置部分修改数据变换部分
 with st.container():
     st.subheader("数据变换")
     transform_method = st.selectbox(
         "数据变换方法",
-        ["无", "挤压函数(归一化)", "挤压函数(原始)", 
-         "Sigmoid(归一化)", "Sigmoid(原始)"],
-        key="transform_method",
-        help="选择要应用的数据变换方法"
+        ["无", "挤压函数(i_squashing)", "挤压函数(squashing)", 
+         "Sigmoid(i_sigmoid)", "Sigmoid(sigmoid)"],
+        key="transform_method"
     )
 
     # 动态参数
-    if transform_method == "Sigmoid(归一化)":
-        maxn = st.slider("归一化系数", 1, 20, 10, 
-                        help="控制归一化程度，值越大归一化效果越强")
+    if "i_sigmoid" in transform_method:
+        maxn = st.slider("maxn参数", 1, 20, 10, key="i_sigmoid_maxn")
     
-    if transform_method == "挤压函数(归一化)":
-        st.info("此方法会自动对数据进行归一化处理")
+    if "i_squashing" in transform_method:
+        normalize = st.checkbox("归一化输入", value=True, key="i_squashing_norm")
 
-# 在处理逻辑中添加
-if transform_method == "挤压函数(归一化)":
+# 在处理按钮部分修改变换逻辑
+if transform_method == "挤压函数(i_squashing)":
     y_processed = i_squashing(y_processed.reshape(1, -1))[0]
-elif transform_method == "挤压函数(原始)":
+    method_name += " + i_squashing"
+elif transform_method == "挤压函数(squashing)":
     y_processed = squashing(y_processed.reshape(1, -1))[0]
-elif transform_method == "Sigmoid(归一化)":
+    method_name += " + squashing"
+elif transform_method == "Sigmoid(i_sigmoid)":
     y_processed = i_sigmoid(y_processed.reshape(1, -1), maxn)[0]
-elif transform_method == "Sigmoid(原始)":
+    method_name += f" + i_sigmoid(maxn={maxn})"
+elif transform_method == "Sigmoid(sigmoid)":
     y_processed = sigmoid(y_processed.reshape(1, -1))[0]
+    method_name += " + sigmoid"
 
+
+
+
+    
         # 归一化
         with st.container():
             st.subheader("归一化")
