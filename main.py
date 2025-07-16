@@ -243,32 +243,32 @@ with col1:
             #   elif advanced_method == "标准化(plotst)":
             #       y_processed = plotst(y_processed.reshape(1, -1))[0]
             #       method_name += " + 标准化"
-# 在处理按钮部分添加高级处理方法
-if advanced_method == "LP范数归一化":
-    lp_order = st.session_state.get('lp_order', "L1范数")  # 需要确保lp_order在之前有定义
-    if lp_order == "L1范数":
-        y_processed = LPnorm(y_processed.reshape(1, -1), 1)[0]
-    elif lp_order == "L2范数":
-        y_processed = LPnorm(y_processed.reshape(1, -1), 2)[0]
-    elif lp_order == "L4范数":
-        y_processed = LPnorm(y_processed.reshape(1, -1), 4)[0]
-    elif lp_order == "L10范数":
-        y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
-    else:  # 无穷大范数
-        y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
-    method_name += f" + LPnorm({lp_order})"
+            # 在处理按钮部分添加高级处理方法
+                if advanced_method == "LP范数归一化":
+                    lp_order = st.session_state.get('lp_order', "L1范数")  # 需要确保lp_order在之前有定义
+                    if lp_order == "L1范数":
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 1)[0]
+                    elif lp_order == "L2范数":
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 2)[0]
+                    elif lp_order == "L4范数":
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 4)[0]
+                    elif lp_order == "L10范数":
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
+                    else:  # 无穷大范数
+                        y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
+                    method_name += f" + LPnorm({lp_order})"
 
-elif advanced_method == "最大最小归一化(MaMinorm)":
-    y_processed = (y_processed - np.min(y_processed)) / (np.max(y_processed) - np.min(y_processed))
-    method_name += " + MaMinorm"
+                elif advanced_method == "最大最小归一化(MaMinorm)":
+                    y_processed = (y_processed - np.min(y_processed)) / (np.max(y_processed) - np.min(y_processed))
+                    method_name += " + MaMinorm"
+        
+                elif advanced_method == "多元散射校正(MSC)":
+                    y_processed = MSC(y_processed.reshape(1, -1))[0]
+                    method_name += " + MSC"
 
-elif advanced_method == "多元散射校正(MSC)":
-    y_processed = MSC(y_processed.reshape(1, -1))[0]
-    method_name += " + MSC"
-
-elif advanced_method == "标准化(plotst)":
-    y_processed = plotst(y_processed.reshape(1, -1))[0]
-    method_name += " + 标准化"
+                elif advanced_method == "标准化(plotst)":
+                    y_processed = plotst(y_processed.reshape(1, -1))[0]
+                    method_name += " + 标准化"
 
 
 
