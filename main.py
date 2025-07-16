@@ -72,7 +72,7 @@ with col1:
         )
 
         if transform_method == "Sigmoid(归一化版)":
-            maxn = st.slider("归一化系数", 1, 20, 10, key="i_sigmoid_maxn")
+            maxn = st.slider("归一化系数", 1, 20, 10, key="i_sigmoid_maxn", help="控制归一化程度，值越大归一化效果越强")
         
         # 归一化
         st.subheader("归一化")
