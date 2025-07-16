@@ -10,7 +10,7 @@ from i_sigmoid import i_sigmoid
 from IModPoly import IModPoly
 from AsLS import baseline_als
 from LPnorm import LPnorm
-from wavelettransform import waveletlinear fft
+from wavelettransform import waveletlinear 
 from fft import Smfft
 from KalmanFiltering import Kalman
 from ArithmeticAverage import MWA 
