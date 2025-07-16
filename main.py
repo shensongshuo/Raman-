@@ -225,7 +225,7 @@ with col1:
                         y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
                 else:  # 无穷大范数
                         y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
-                    method_name += f" + LPnorm({lp_order})"  # 这行缩进应与 if 对齐
+                method_name += f" + LPnorm({lp_order})"  # 这行缩进应与 if 对齐
 
                 elif advanced_method == "最大最小归一化(MaMinorm)":
                      y_processed = MaMinorm(y_processed.reshape(1, -1))[0]
