@@ -4,7 +4,7 @@ import pandas as pd
 from SD import D2
 from FD import D1
 from sigmoids import sigmoid
-from squashing import Squashing  
+from squashing import squashing  
 from i_squashing import i_squashing 
 from i_sigmoid import i_sigmoid
 from IModPoly import IModPoly
