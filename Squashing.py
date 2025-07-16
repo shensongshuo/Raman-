@@ -14,5 +14,5 @@ import math
 #            sqData[i][j] =( 1-math.cos(Data[i][j]*math.pi))/2
  #   return sqData
 
-def squashing(Data):
+def Squashing(Data):
     return (1 - np.cos(Data * np.pi)) / 2
