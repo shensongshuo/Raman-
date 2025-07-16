@@ -4,9 +4,7 @@ def MSC(sdata):
     n = sdata.shape[0]  # 样本数量
     k = np.zeros(sdata.shape[0])
     b = np.zeros(sdata.shape[0])
- 
     M = np.mean(sdata, axis=0)
- 
     for i in range(n):
         y = sdata[i, :]
         y = y.reshape(-1, 1)
