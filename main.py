@@ -216,16 +216,16 @@ with col1:
             # 在处理按钮部分添加高级处理方法
                 if advanced_method == "LP范数归一化":
                     if lp_order == "L1范数":
-                    y_processed = LPnorm(y_processed.reshape(1, -1), 1)[0]
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 1)[0]  # 确保这里缩进 4 个空格或 1 个 Tab
                 elif lp_order == "L2范数":
-                    y_processed = LPnorm(y_processed.reshape(1, -1), 2)[0]
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 2)[0]
                 elif lp_order == "L4范数":
-                    y_processed = LPnorm(y_processed.reshape(1, -1), 4)[0]
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 4)[0]
                 elif lp_order == "L10范数":
-                    y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
+                        y_processed = LPnorm(y_processed.reshape(1, -1), 10)[0]
                 else:  # 无穷大范数
-                    y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
-                    method_name += f" + LPnorm({lp_order})"
+                        y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
+                    method_name += f" + LPnorm({lp_order})"  # 这行缩进应与 if 对齐
 
                 elif advanced_method == "最大最小归一化(MaMinorm)":
                      y_processed = MaMinorm(y_processed.reshape(1, -1))[0]
