@@ -19,6 +19,13 @@ from SGfiltering import SGfilter
 import pywt
 import copy
 from sklearn.linear_model import LinearRegression  # 用于MSC方法
+from MMnorm import MaMinorm 
+from MSCdef import MSC 
+from SNV import standardization 
+ 
+
+
+
 
 # 设置页面
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
