@@ -69,19 +69,34 @@ with col1:
                 lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
                 p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-        # 数据变换
-        with st.container():
-            st.subheader("数据变换")
-            transform_method = st.selectbox(
-                "数据变换方法",
-                ["无", "挤压函数"],
-                key="transform_method"
-            )
+# ===== 数据变换 =====
+with st.container():
+    st.subheader("数据变换")
+    transform_method = st.selectbox(
+        "数据变换方法",
+        ["无", "挤压函数(归一化)", "挤压函数(原始)", 
+         "Sigmoid(归一化)", "Sigmoid(原始)"],
+        key="transform_method",
+        help="选择要应用的数据变换方法"
+    )
 
-            # 挤压函数参数
-            if transform_method == "挤压函数":
-                squeeze_param1 = st.slider("挤压强度", 0.1, 5.0, 1.0, key="squeeze_param1")
-                squeeze_param2 = st.number_input("挤压阈值", value=0.5, key="squeeze_param2")
+    # 动态参数
+    if transform_method == "Sigmoid(归一化)":
+        maxn = st.slider("归一化系数", 1, 20, 10, 
+                        help="控制归一化程度，值越大归一化效果越强")
+    
+    if transform_method == "挤压函数(归一化)":
+        st.info("此方法会自动对数据进行归一化处理")
+
+# 在处理逻辑中添加
+if transform_method == "挤压函数(归一化)":
+    y_processed = i_squashing(y_processed.reshape(1, -1))[0]
+elif transform_method == "挤压函数(原始)":
+    y_processed = squashing(y_processed.reshape(1, -1))[0]
+elif transform_method == "Sigmoid(归一化)":
+    y_processed = i_sigmoid(y_processed.reshape(1, -1), maxn)[0]
+elif transform_method == "Sigmoid(原始)":
+    y_processed = sigmoid(y_processed.reshape(1, -1))[0]
 
         # 归一化
         with st.container():
