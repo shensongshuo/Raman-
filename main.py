@@ -68,6 +68,7 @@ with col1:
             ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
              "Sigmoid(归一化版)", "Sigmoid(原始版)"],
             key="transform_method"
+            help="选择要应用的数据变换方法"
         )
 
         if transform_method == "Sigmoid(归一化版)":
