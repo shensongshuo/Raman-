@@ -65,7 +65,7 @@ with col1:
             p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
 st.subheader("🔧 数据变换方法2（滤波处理）")
-    filter_method = st.selectbox(
+        filter_method = st.selectbox(
         "滤波方法",
         ["无", "傅里叶滤波(Smfft)", "卡尔曼滤波(KalmanF)", 
          "移动平均滤波(MWA)", "中值滤波(MWM)", 
