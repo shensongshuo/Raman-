@@ -75,7 +75,68 @@ with col1:
             elif transform_method == "挤压函数(归一化版)":
                 st.info("此方法会自动对数据进行归一化处理")
 
+# ===== 数据变换 =====
+with st.container():
+    st.subheader("🧩 数据变换方法")
+    
+    # 方法选择框
+    transform_method = st.selectbox(
+        "选择变换类型",
+        ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
+         "Sigmoid(归一化版)", "Sigmoid(原始版)"],
+        key="transform_method",
+        help="""根据数据特性选择变换方法：
+        - 挤压函数：适合增强周期性信号
+        - Sigmoid：适合平滑压缩数据范围"""
+    )
 
+    # 动态参数控制区
+    if transform_method != "无":
+        st.markdown("---")
+        st.caption("🛠️ 参数设置")
+        
+        if "Sigmoid(归一化版)" in transform_method:
+            maxn = st.slider(
+                "归一化强度",
+                1, 20, 10,
+                help="""控制数据归一化程度：
+                - 较低值：保留更多原始数据分布
+                - 较高值：增强归一化效果"""
+            )
+            st.progress(maxn/20, text=f"当前归一化强度: {maxn}/20")
+            
+        elif "挤压函数(归一化版)" in transform_method:
+            with st.expander("ℹ️ 归一化说明", expanded=True):
+                st.markdown("""
+                **自动归一化处理流程**:
+                1. 计算每个光谱的最小值 (min)
+                2. 计算最大值与最小值的差 (max-min)
+                3. 对每个数据点执行: (x-min)/(max-min)
+                4. 应用挤压函数变换
+                """)
+                st.image("https://via.placeholder.com/300x100?text=Normalization+Process", 
+                        width=300)
+
+        # 添加方法原理的快速预览
+        st.markdown("---")
+        with st.expander("📚 方法原理速查"):
+            if "挤压函数" in transform_method:
+                st.latex(r'''
+                \text{Squashing}(x) = \frac{1 - \cos(x \cdot \pi)}{2}
+                ''')
+                st.markdown("""
+                - 输出范围: [0, 1]
+                - 特点: 周期性压缩
+                """)
+                
+            elif "Sigmoid" in transform_method:
+                st.latex(r'''
+                \sigma(x) = \frac{1}{1 + e^{-x}}
+                ''')
+                st.markdown("""
+                - 输出范围: (0, 1)
+                - 特点: 平滑过渡
+                """)
         
         # 归一化
         st.subheader("归一化")
