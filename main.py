@@ -58,22 +58,7 @@ with col1:
             lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
             p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-            with st.container():
-            st.subheader("数据变换")
-            transform_method = st.selectbox(
-                "数据变换方法",
-                ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
-                 "Sigmoid(归一化版)", "Sigmoid(原始版)"],
-                key="transform_method",
-                help="选择要应用的数据变换方法"
-            )
 
-            # 动态参数
-            if transform_method == "Sigmoid(归一化版)":
-                maxn = st.slider("归一化系数", 1, 20, 10, 
-                                help="控制归一化程度，值越大归一化效果越强")
-            elif transform_method == "挤压函数(归一化版)":
-                st.info("此方法会自动对数据进行归一化处理")
 
 # ===== 数据变换 =====
 with st.container():
