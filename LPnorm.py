@@ -1,35 +1,20 @@
-# LPnorm.py
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Sep 28 20:21:06 2019
+
+@author: Administrator
+"""
 import numpy as np
 
 
-def LPnorm(arr, p):
-    """
-    Lp范数归一化 (支持无穷大范数)
-
-    参数:
-        arr: 输入光谱数据 (n_samples, n_points)
-        p: 范数阶数 (4, 10 或 np.inf)
-
-    返回:
-        归一化后的光谱
-    """
-    if p not in [4, 10, np.inf]:
-        raise ValueError("p值必须是4、10或无穷大")
-
-    arr = np.asarray(arr, dtype=np.float64)
-    result = np.zeros_like(arr)
-
-    for i in range(arr.shape[0]):
-        if p == np.inf:
-            # 无穷范数(最大绝对值归一化)
-            norm = np.max(np.abs(arr[i]))
+def LPnorm(arr, ord):
+    row = arr.shape[0]
+    col = arr.shape[1]
+    Lpdata = np.zeros((row, col))
+    for i in range(row):
+        Lp = np.linalg.norm(arr[i,:], ord)
+        if Lp !=0 :
+            Lpdata[i,:] = arr[i,:] / Lp
         else:
-            # 普通Lp范数
-            norm = np.linalg.norm(arr[i], ord=p)
-
-        if norm > 1e-10:  # 防止除以零
-            result[i] = arr[i] / norm
-        else:
-            result[i] = arr[i]  # 零向量保持不变
-
-    return result
+            Lpdata[i,:] = arr[i,:]
+    return Lpdata
