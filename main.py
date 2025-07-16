@@ -227,15 +227,15 @@ with col1:
                         y_processed = LPnorm(y_processed.reshape(1, -1), np.inf)[0]
                 method_name += f" + LPnorm({lp_order})"  # 这行缩进应与 if 对齐
 
-                elif advanced_method == "最大最小归一化(MaMinorm)":
+            elif advanced_method == "最大最小归一化(MaMinorm)":
                      y_processed = MaMinorm(y_processed.reshape(1, -1))[0]
                     method_name += " + MaMinorm"
 
-                elif advanced_method == "多元散射校正(MSC)":
+            elif advanced_method == "多元散射校正(MSC)":
                      y_processed = MSC(y_processed.reshape(1, -1))[0]
                     method_name += " + MSC"
 
-                elif advanced_method == "标准化(plotst)":
+            elif advanced_method == "标准化(plotst)":
                     y_processed = plotst(y_processed.reshape(1, -1))[0]
                     method_name += " + 标准化"
 
