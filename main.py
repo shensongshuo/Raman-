@@ -3,9 +3,23 @@ import numpy as np
 import pandas as pd
 from SD import D2
 from FD import D1
+from sigmoids import sigmoid
+from Squashing import Squashing  
+from i_squashing import i_squashing 
+from i_sigmoid import i_sigmoid
 from IModPoly import IModPoly
 from AsLS import baseline_als
 from LPnorm import LPnorm
+
+import streamlit as st
+import numpy as np
+import pandas as pd
+from SD import D2
+from FD import D1
+from IModPoly import IModPoly
+from AsLS import baseline_als
+from LPnorm import LPnorm
+from squeeze import squeeze_function  # 导入挤压函数
 
 # 设置页面
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
@@ -40,23 +54,43 @@ with col1:
     # ===== 预处理设置 =====
     with st.expander("⚙️ 预处理设置", expanded=True):
         # 基线校准
-        baseline_method = st.selectbox(
-            "基线校准方法",
-            ["无", "SD", "FD", "I-ModPoly", "AsLS"]
-        )
+        with st.container():
+            st.subheader("基线校准")
+            baseline_method = st.selectbox(
+                "基线校准方法",
+                ["无", "SD", "FD", "I-ModPoly", "AsLS"],
+                key="baseline_method"
+            )
 
-        # 动态参数
-        if baseline_method == "I-ModPoly":
-            polyorder = st.slider("多项式阶数", 3, 10, 6)
-        elif baseline_method == "AsLS":
-            lam = st.number_input("λ(平滑度)", value=1e7, format="%e")
-            p = st.slider("p(不对称性)", 0.01, 0.5, 0.1)
+            # 动态参数
+            if baseline_method == "I-ModPoly":
+                polyorder = st.slider("多项式阶数", 3, 10, 6, key="polyorder")
+            elif baseline_method == "AsLS":
+                lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
+                p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
+
+        # 数据变换
+        with st.container():
+            st.subheader("数据变换")
+            transform_method = st.selectbox(
+                "数据变换方法",
+                ["无", "挤压函数"],
+                key="transform_method"
+            )
+
+            # 挤压函数参数
+            if transform_method == "挤压函数":
+                squeeze_param1 = st.slider("挤压强度", 0.1, 5.0, 1.0, key="squeeze_param1")
+                squeeze_param2 = st.number_input("挤压阈值", value=0.5, key="squeeze_param2")
 
         # 归一化
-        norm_method = st.selectbox(
-            "归一化方法",
-            ["无", "无穷大范数", "L10范数", "L4范数"]
-        )
+        with st.container():
+            st.subheader("归一化")
+            norm_method = st.selectbox(
+                "归一化方法",
+                ["无", "无穷大范数", "L10范数", "L4范数"],
+                key="norm_method"
+            )
 
         # 处理按钮
         if st.button("🚀 应用处理", type="primary"):
@@ -65,6 +99,7 @@ with col1:
             else:
                 x, y = st.session_state.raw_data
                 y_processed = y.copy()
+                method_name = "原始数据"
 
                 # 基线处理
                 if baseline_method == "SD":
@@ -79,8 +114,11 @@ with col1:
                 elif baseline_method == "AsLS":
                     y_processed = baseline_als(y_processed.reshape(1, -1), lam, p, 10)[0]
                     method_name = f"AsLS(λ={lam:.1e},p={p})"
-                else:
-                    method_name = "未处理"
+
+                # 数据变换处理
+                if transform_method == "挤压函数":
+                    y_processed = squeeze_function(y_processed.reshape(1, -1), squeeze_param1, squeeze_param2)[0]
+                    method_name += f" + 挤压函数(强度={squeeze_param1},阈值={squeeze_param2})"
 
                 # 归一化处理
                 if norm_method == "无穷大范数":
@@ -153,7 +191,6 @@ with st.sidebar:
         st.write(f"数据点数: {len(st.session_state.raw_data[0])}")
     if st.session_state.get('process_method'):  
         st.write(f"当前处理方法: {st.session_state.process_method}")
-
 
     st.divider()
     st.markdown("""
