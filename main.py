@@ -3,23 +3,13 @@ import numpy as np
 import pandas as pd
 from SD import D2
 from FD import D1
-from sigmoids import sigmoid
-from Squashing import Squashing  
-from i_squashing import i_squashing 
+from IModPoly import IModPoly
+from AsLS import baseline_als
+from LPnorm import LPnorm
+from sigmoid import sigmoid
 from i_sigmoid import i_sigmoid
-from IModPoly import IModPoly
-from AsLS import baseline_als
-from LPnorm import LPnorm
-
-import streamlit as st
-import numpy as np
-import pandas as pd
-from SD import D2
-from FD import D1
-from IModPoly import IModPoly
-from AsLS import baseline_als
-from LPnorm import LPnorm
-
+from Squashing import squashing
+from i_squashing import i_squashing
 
 # 设置页面
 st.set_page_config(layout="wide", page_title="拉曼光谱分析系统")
@@ -69,45 +59,24 @@ with col1:
                 lam = st.number_input("λ(平滑度)", value=1e7, format="%e", key="lam")
                 p = st.slider("p(不对称性)", 0.01, 0.5, 0.1, key="p")
 
-# ===== 数据变换 =====
-# 在导入部分添加
-from transforms import i_squashing, squashing, i_sigmoid, sigmoid
+        # ===== 数据变换 =====
+        with st.container():
+            st.subheader("数据变换")
+            transform_method = st.selectbox(
+                "数据变换方法",
+                ["无", "挤压函数(归一化版)", "挤压函数(原始版)", 
+                 "Sigmoid(归一化版)", "Sigmoid(原始版)"],
+                key="transform_method",
+                help="选择要应用的数据变换方法"
+            )
 
-# 在预处理设置部分修改数据变换部分
-with st.container():
-    st.subheader("数据变换")
-    transform_method = st.selectbox(
-        "数据变换方法",
-        ["无", "挤压函数(i_squashing)", "挤压函数(squashing)", 
-         "Sigmoid(i_sigmoid)", "Sigmoid(sigmoid)"],
-        key="transform_method"
-    )
+            # 动态参数
+            if transform_method == "Sigmoid(归一化版)":
+                maxn = st.slider("归一化系数", 1, 20, 10, 
+                                help="控制归一化程度，值越大归一化效果越强")
+            elif transform_method == "挤压函数(归一化版)":
+                st.info("此方法会自动对数据进行归一化处理")
 
-    # 动态参数
-    if "i_sigmoid" in transform_method:
-        maxn = st.slider("maxn参数", 1, 20, 10, key="i_sigmoid_maxn")
-    
-    if "i_squashing" in transform_method:
-        normalize = st.checkbox("归一化输入", value=True, key="i_squashing_norm")
-
-# 在处理按钮部分修改变换逻辑
-if transform_method == "挤压函数(i_squashing)":
-    y_processed = i_squashing(y_processed.reshape(1, -1))[0]
-    method_name += " + i_squashing"
-elif transform_method == "挤压函数(squashing)":
-    y_processed = squashing(y_processed.reshape(1, -1))[0]
-    method_name += " + squashing"
-elif transform_method == "Sigmoid(i_sigmoid)":
-    y_processed = i_sigmoid(y_processed.reshape(1, -1), maxn)[0]
-    method_name += f" + i_sigmoid(maxn={maxn})"
-elif transform_method == "Sigmoid(sigmoid)":
-    y_processed = sigmoid(y_processed.reshape(1, -1))[0]
-    method_name += " + sigmoid"
-
-
-
-
-    
         # 归一化
         with st.container():
             st.subheader("归一化")
@@ -141,9 +110,18 @@ elif transform_method == "Sigmoid(sigmoid)":
                     method_name = f"AsLS(λ={lam:.1e},p={p})"
 
                 # 数据变换处理
-                if transform_method == "挤压函数":
-                    y_processed = squeeze_function(y_processed.reshape(1, -1), squeeze_param1, squeeze_param2)[0]
-                    method_name += f" + 挤压函数(强度={squeeze_param1},阈值={squeeze_param2})"
+                if transform_method == "挤压函数(归一化版)":
+                    y_processed = i_squashing(y_processed.reshape(1, -1))[0]
+                    method_name += " + i_squashing"
+                elif transform_method == "挤压函数(原始版)":
+                    y_processed = squashing(y_processed.reshape(1, -1))[0]
+                    method_name += " + squashing"
+                elif transform_method == "Sigmoid(归一化版)":
+                    y_processed = i_sigmoid(y_processed.reshape(1, -1), maxn)[0]
+                    method_name += f" + i_sigmoid(maxn={maxn})"
+                elif transform_method == "Sigmoid(原始版)":
+                    y_processed = sigmoid(y_processed.reshape(1, -1))[0]
+                    method_name += " + sigmoid"
 
                 # 归一化处理
                 if norm_method == "无穷大范数":
@@ -169,7 +147,7 @@ with col2:
     if st.session_state.raw_data:
         x, y = st.session_state.raw_data
         chart_data["原始数据"] = y
-        chart_data.index = x  # 使用x作为索引
+        chart_data.index = x
 
     if st.session_state.processed_data:
         x, y = st.session_state.processed_data
