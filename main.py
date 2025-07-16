@@ -8,7 +8,7 @@ from AsLS import baseline_als
 from LPnorm import LPnorm
 from sigmoids import sigmoid
 from i_sigmoid import i_sigmoid
-from Squashing import squashing
+from squashing import squashing
 from i_squashing import i_squashing
 
 # 设置页面
